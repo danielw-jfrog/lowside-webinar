@@ -1,0 +1,58 @@
+resources:
+  - name: example_promotion_webhook
+    type: IncomingWebhook
+    configuration:
+      webhookName: example_promotion_webhook
+pipelines:
+  - name: Run_Example_Promotion
+    steps:
+      - name: Gather_Properties_of_Artifact
+        type: Bash
+        configuration:
+          integrations:
+            - name: artifactory
+          inputResources:
+            - name: promotion_webhook
+        execution:
+          onExecute:
+            - echo "Call API Here"
+      - name: Promote_Build_to_QA_in_Artifactory
+        type: Bash
+        configuration:
+          integrations:
+            - name: artifactory
+          inputSteps:
+            - name: Gather_Properties_of_Artifact
+        execution:
+          onExecute:
+            - echo "Call API Here"
+      - name: Call_Jenkins_to_Run_QA_Tests
+        type: Bash
+        configuration:
+          integrations:
+            - name: artifactory
+          inputSteps:
+            - name: Promote_Build_to_QA_in_Artifactory
+        execution:
+          onExecute:
+            - echo "Use Jenkins integration here"
+      - name: Distibute_Release_Bundle_to_QA_environment
+        type: Bash
+        configuration:
+          integrations:
+            - name: artifactory
+          inputSteps:
+            - name: Call_Jenkins_to_Run_QA_Tests
+        execution:
+          onExecute:
+            - echo "Call API Here"
+      - name: Call_CD_Platform_to_Trigger_Deployment
+        type: Bash
+        configuration:
+          integrations:
+            - name: artifactory
+          inputSteps:
+            - name: Distibute_Release_Bundle_to_QA_environment
+        execution:
+          onExecute:
+            - echo "Use CD Platform integration here"

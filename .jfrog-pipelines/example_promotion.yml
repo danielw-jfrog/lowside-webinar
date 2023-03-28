@@ -12,7 +12,7 @@ pipelines:
           integrations:
             - name: artifactory
           inputResources:
-            - name: promotion_webhook
+            - name: example_promotion_webhook
         execution:
           onExecute:
             - echo "Call API Here"

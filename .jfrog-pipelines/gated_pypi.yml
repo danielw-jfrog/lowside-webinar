@@ -1,0 +1,30 @@
+resources:
+  - name: gated_pypi_webhook
+    type: IncomingWebhook
+    configuration:
+      webhookName: gated_pypi
+
+pipelines:
+  - name: Gated_Pypi
+    configuration:
+      environmentVariables:
+        readOnly:
+          local_repo_name: scanned-pypi-local
+          remote_repo_name: pythonhosted-pypi-remote
+    steps:
+    - name: GatedStep
+      type: Bash
+      configuration:
+        integrations:
+          - name: artifactory
+        inputResources:
+          - name: gated_pypi_webhook
+          - name: danielw_gitrepo
+            trigger: false
+      execution:
+          onExecute:
+            - python3 --version
+            - pip3 --version
+            - ls -lR
+            - cp ./dependencyState/resources/danielw_gitrepo/gated_pypi.py .
+            - python3 gated_pypi.py

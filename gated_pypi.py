@@ -44,7 +44,7 @@ class PythonPackagePuller:
         pip_output = subprocess.run(pip_cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         self.logger.debug("  pip_output: %s", pip_output)
         # Check for a failed install
-        if pip_output.returncode is not 0:
+        if pip_output.returncode != 0:
             # NOTE: Since the output from the pip command is captured, it is
             #       possible to parse the output and figure out which dependency
             #       failed.  This isn't required for this example as the failed

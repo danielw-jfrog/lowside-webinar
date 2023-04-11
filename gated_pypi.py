@@ -96,7 +96,7 @@ def main():
     )
 
     logging.info("Preparing Environment")
-    tmp_payload_json = os.environ['res_curate_pypi_payload']
+    tmp_payload_json = os.environ['res_gated_pypi_payload']
     tmp_packages = get_requirements_from_payload(tmp_payload_json)
 
     tmp_login_data = {}

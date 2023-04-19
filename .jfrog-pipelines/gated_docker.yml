@@ -1,0 +1,29 @@
+resources:
+  - name: gated_docker_webhook
+    type: IncomingWebhook
+    configuration:
+      webhookName: gated_docker
+
+pipelines:
+  - name: GatedDocker
+    configuration:
+      environmentVariables:
+        readOnly:
+          local_repo_name: cold-check
+          remote_repo_name: dockerhub-docker-remote
+    steps:
+    - name: ExampleStep
+      type: Bash
+      configuration:
+        integrations:
+          - name: artifactory
+        inputResources:
+          - name: gated_docker_webhook
+          - name: danielw_gitrepo
+            trigger: false
+      execution:
+          onExecute:
+            - python3 --version
+            - ls -lR
+            - cp ./dependencyState/resources/danielw_gitrepo/gated_docker.py .
+            - python3 gated_docker.py

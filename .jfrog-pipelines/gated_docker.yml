@@ -9,7 +9,7 @@ pipelines:
     configuration:
       environmentVariables:
         readOnly:
-          local_repo_name: cold-check
+          local_repo_name: scanned-docker-local
           remote_repo_name: dockerhub-docker-remote
     steps:
     - name: ExampleStep

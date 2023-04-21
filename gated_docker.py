@@ -120,9 +120,9 @@ class DockerImagePuller:
         self.logger.debug("tmp_image_tag: %s", self.image_tag)
         self.logger.debug("tmp_image_split: %s", self.image_split)
         tmp_image_arti_name = "{}/{}/{}/{}/list.manifest.json".format(
+            self.image_split[0],
             self.image_split[1],
             self.image_split[2],
-            self.image_split[3],
             self.image_tag[1]
         )
         tmp_curl1_output = self._arti_curl_get(tmp_image_arti_name)
@@ -134,9 +134,9 @@ class DockerImagePuller:
         else:
             # Failure in pulling V2, so try V1
             tmp_image_arti_name = "{}/{}/{}/{}/manifest.json".format(
+                self.image_split[0],
                 self.image_split[1],
                 self.image_split[2],
-                self.image_split[3],
                 self.image_tag[1]
             )
             tmp_curl12_output = self._arti_curl_get(tmp_image_arti_name)
@@ -152,16 +152,16 @@ class DockerImagePuller:
     def _copy_v1(self):
         self.logger.debug("Copying the V1 type docker image")
         tmp_config_from_name = "{}/{}/{}/{}".format(
+            self.image_split[0],
             self.image_split[1],
             self.image_split[2],
-            self.image_split[3],
             "__".join(self.manifest['config']['digest'].split(':'))
         )
         self.logger.debug("tmp_config_from_name: %s", tmp_config_from_name)
         tmp_config_to_name = "{}/{}/{}/{}".format(
             self.local_repo,
+            self.image_split[1],
             self.image_split[2],
-            self.image_split[3],
             "__".join(self.manifest['config']['digest'].split(':'))
         )
         self.logger.debug("tmp_config_to_name: %s", tmp_config_to_name)
@@ -177,16 +177,16 @@ class DockerImagePuller:
         # Copy the layer files
         for tmp_sublayer in self.manifest['layers']:
             tmp_layer_from_name = "{}/{}/{}/{}".format(
+                self.image_split[0],
                 self.image_split[1],
                 self.image_split[2],
-                self.image_split[3],
                 "__".join(tmp_sublayer['digest'].split(':'))
             )
             self.logger.debug("tmp_layer_from_name: %s", tmp_layer_from_name)
             tmp_layer_to_name = "{}/{}/{}/{}".format(
                 self.local_repo,
+                self.image_split[1],
                 self.image_split[2],
-                self.image_split[3],
                 "__".join(tmp_sublayer['digest'].split(':'))
             )
             self.logger.debug("tmp_layer_to_name: %s", tmp_layer_to_name)
@@ -211,9 +211,9 @@ class DockerImagePuller:
                 self.logger.debug("subimage_name: %s", subimage_name)
 
                 subimage_arti_name = "{}/{}/{}/{}/manifest.json".format(
+                    self.image_split[0],
                     self.image_split[1],
                     self.image_split[2],
-                    self.image_split[3],
                     subimage_name
                 )
                 tmp_curl2_output = self._arti_curl_get(subimage_arti_name)
@@ -223,16 +223,16 @@ class DockerImagePuller:
                     subimage_manifest = json.loads(tmp_curl2_output.stdout.decode())
                     # Copy the config
                     tmp_config_from_name = "{}/{}/{}/{}/{}".format(
+                        self.image_split[0],
                         self.image_split[1],
                         self.image_split[2],
-                        self.image_split[3],
                         subimage_name,
                         "__".join(subimage_manifest['config']['digest'].split(':'))
                     )
                     tmp_config_to_name = "{}/{}/{}/{}/{}".format(
                         self.local_repo,
+                        self.image_split[1],
                         self.image_split[2],
-                        self.image_split[3],
                         subimage_name,
                         "__".join(subimage_manifest['config']['digest'].split(':'))
                     )
@@ -249,15 +249,15 @@ class DockerImagePuller:
                     # Copy the layer files
                     for tmp_sublayer in subimage_manifest['layers']:
                         tmp_sublayer_from_name = "{}/{}/{}/{}/{}".format(
+                            self.image_split[0],
                             self.image_split[1],
                             self.image_split[2],
-                            self.image_split[3],
                             subimage_name, "__".join(tmp_sublayer['digest'].split(':'))
                         )
                         tmp_sublayer_to_name = "{}/{}/{}/{}/{}".format(
                             self.local_repo,
+                            self.image_split[1],
                             self.image_split[2],
-                            self.image_split[3],
                             subimage_name, "__".join(tmp_sublayer['digest'].split(':'))
                         )
                         tmp_curl4_output = self._arti_curl_copy(tmp_sublayer_from_name, tmp_sublayer_to_name)

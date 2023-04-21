@@ -25,10 +25,25 @@ def get_images_from_payload(payload_json):
 
 def docker_login(login_data):
     logging.debug("Logging into Docker CLI")
+    # Login to Local Repo
     tmp_prep_cmd = "docker login -u {} -p {} {}".format(
         login_data['user'],
         login_data['apikey'],
-        login_data['docker_url']
+        login_data['docker_local_url']
+    )
+    logging.debug("  tmp_prep_cmd: %s", tmp_prep_cmd)
+    tmp_prep_output = subprocess.run(
+        tmp_prep_cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE
+    )
+    if tmp_prep_output.returncode == 0:
+        logging.debug("  Successfully logged into docker")
+    else:
+        logging.warning("Failed to log into docker: %s", tmp_prep_output.stderr)
+    # Login to Remote Repo
+    tmp_prep_cmd = "docker login -u {} -p {} {}".format(
+        login_data['user'],
+        login_data['apikey'],
+        login_data['docker_remote_url']
     )
     logging.debug("  tmp_prep_cmd: %s", tmp_prep_cmd)
     tmp_prep_output = subprocess.run(
@@ -290,6 +305,8 @@ def main():
     tmp_login_data['local_repo'] = os.environ['local_repo_name']
     tmp_login_data['remote_repo'] = os.environ['remote_repo_name']
     tmp_login_data['docker_url'] = str(tmp_login_data['arti_url'].split('/')[2])
+    tmp_login_data['docker_local_url'] = "{}.{}".format(tmp_login_data['local_repo'], tmp_login_data['docker_url'])
+    tmp_login_data['docker_remote_url'] = "{}.{}".format(tmp_login_data['remote_repo'], tmp_login_data['docker_url'])
 
     docker_login(tmp_login_data)
 

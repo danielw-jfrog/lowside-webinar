@@ -92,7 +92,7 @@ class DockerImagePuller:
     def _arti_curl_get(self, input_url):
         # FIXME: Convert this to urllib or similar
         self.logger.debug("Get artifact: %s", input_url)
-        curl_cmd = "curl -f -u{}:{} {}/{}".format(
+        curl_cmd = "curl -f -u{}:{} {}/artifactory/{}".format(
             self.login_data['user'],
             self.login_data['apikey'],
             self.login_data['arti_url'],
@@ -119,10 +119,13 @@ class DockerImagePuller:
         self.logger.debug("Pulling the manifest for image: %s", self.docker_image)
         self.logger.debug("tmp_image_tag: %s", self.image_tag)
         self.logger.debug("tmp_image_split: %s", self.image_split)
+
+        # dockerhub-docker-remote-cache/library/alpine/latest/list.manifest.json
+
         tmp_image_arti_name = "{}/{}/{}/{}/list.manifest.json".format(
+            self.login_data['remote_repo_name'],
             self.image_split[0],
             self.image_split[1],
-            self.image_split[2],
             self.image_tag[1]
         )
         tmp_curl1_output = self._arti_curl_get(tmp_image_arti_name)
@@ -134,9 +137,9 @@ class DockerImagePuller:
         else:
             # Failure in pulling V2, so try V1
             tmp_image_arti_name = "{}/{}/{}/{}/manifest.json".format(
+                self.login_data['remote_repo_name'],
                 self.image_split[0],
                 self.image_split[1],
-                self.image_split[2],
                 self.image_tag[1]
             )
             tmp_curl12_output = self._arti_curl_get(tmp_image_arti_name)

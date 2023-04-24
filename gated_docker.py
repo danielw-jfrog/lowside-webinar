@@ -123,7 +123,7 @@ class DockerImagePuller:
         # dockerhub-docker-remote-cache/library/alpine/latest/list.manifest.json
 
         tmp_image_arti_name = "{}/{}/{}/{}/list.manifest.json".format(
-            self.login_data['remote_repo'],
+            "{}-cache".format(self.login_data['remote_repo']),
             self.image_split[0],
             self.image_split[1],
             self.image_tag[1]
@@ -137,7 +137,7 @@ class DockerImagePuller:
         else:
             # Failure in pulling V2, so try V1
             tmp_image_arti_name = "{}/{}/{}/{}/manifest.json".format(
-                self.login_data['remote_repo'],
+                "{}-cache".format(self.login_data['remote_repo']),
                 self.image_split[0],
                 self.image_split[1],
                 self.image_tag[1]

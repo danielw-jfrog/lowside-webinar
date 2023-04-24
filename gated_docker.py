@@ -343,9 +343,9 @@ def main():
     tmp_failures = []
     for tmp_puller in tmp_dockerimage_pullers:
         if tmp_puller.success:
-            tmp_successes.append(tmp_puller.package_line)
+            tmp_successes.append(tmp_puller.docker_image)
         else:
-            tmp_failures.append(tmp_puller.package_line)
+            tmp_failures.append(tmp_puller.docker_image)
 
     if len(tmp_successes) > 0:
         logging.info("Successfully Curated:")

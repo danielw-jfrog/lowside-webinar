@@ -55,6 +55,9 @@ def docker_login(login_data):
         logging.warning("Failed to log into docker: %s", tmp_prep_output.stderr)
 
 ### CLASSES ###
+class DockerImagePullerException(Exception):
+    pass
+
 class DockerImagePuller:
     # NOTE: This script currently only supports the amd64 type of docker images.
     #       It is possible to extend this script to support arm and others.
@@ -71,6 +74,7 @@ class DockerImagePuller:
         self.docker_version = None
         self.success_pull = False
         self.success_copy = False
+        self.success = False
         self.logger.debug("DockerImagePuller for image: %s", docker_image)
 
     def _arti_curl_copy(self, input_from, input_to):
@@ -112,8 +116,9 @@ class DockerImagePuller:
             self.logger.debug("  Successfully pulled '%s'", self.docker_image)
             self.success_pull = True
         else:
-            # FIXME: Should this raise an exception on failure?
-            self.logger.warning("Failed to pull image '%s' with error: %s", self.docker_image, tmp_pull_output.stderr)
+            # TODO: Should add better error handling for 404: Not Found vs 403: Xray Blocked
+            self.logger.debug("Failed to pull image '%s' with error: %s", self.docker_image, tmp_pull_output.stderr)
+            raise DockerImagePullerException(tmp_pull_output.stderr)
 
     def _pull_manifest(self):
         self.logger.debug("Pulling the manifest for image: %s", self.docker_image)
@@ -281,12 +286,17 @@ class DockerImagePuller:
 
     def curate(self):
         self.logger.info("Curating the docker image: %s", self.docker_image)
-        self._pull_image()
-        self._pull_manifest()
-        # if self.docker_version == "V2":
-        #     self._copy_v2()
-        # elif self.docker_version == "V1":
-        #     self._copy_v1()
+        try:
+            self._pull_image()
+            self._pull_manifest()
+            # if self.docker_version == "V2":
+            #     self._copy_v2()
+            # elif self.docker_version == "V1":
+            #     self._copy_v1()
+            self.success = True
+        except DockerImagePullerException as ex:
+            # Failed at some point, so mark as failure
+            self.logger.info("Failed to curate: %s due to error: %s", self.docker_image, ex)
         self.logger.debug("Curating complete for docker image: %s", self.docker_image)
 
 ### MAIN ###

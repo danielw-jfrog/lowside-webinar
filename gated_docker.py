@@ -124,9 +124,6 @@ class DockerImagePuller:
         self.logger.debug("Pulling the manifest for image: %s", self.docker_image)
         self.logger.debug("tmp_image_tag: %s", self.image_tag)
         self.logger.debug("tmp_image_split: %s", self.image_split)
-
-        # dockerhub-docker-remote-cache/library/alpine/latest/list.manifest.json
-
         tmp_image_arti_name = "{}/{}/{}/{}/list.manifest.json".format(
             "{}-cache".format(self.login_data['remote_repo']),
             self.image_split[0],
@@ -154,8 +151,8 @@ class DockerImagePuller:
                 self.manifest = json.loads(tmp_curl12_output.stdout.decode())
                 self.docker_version = "V1"
             else:
-                # FIXME: Raise an exception if both manifest pull attempts fail
-                self.logger.warning("Failed to pull a manifest")
+                self.logger.debug("Failed to pull a manifest")
+                raise DockerImagePullerException("Failed to pull a manifest")
 
     def _copy_v1(self):
         self.logger.debug("Copying the V1 type docker image")
@@ -289,10 +286,10 @@ class DockerImagePuller:
         try:
             self._pull_image()
             self._pull_manifest()
-            # if self.docker_version == "V2":
-            #     self._copy_v2()
-            # elif self.docker_version == "V1":
-            #     self._copy_v1()
+            if self.docker_version == "V2":
+                self._copy_v2()
+            elif self.docker_version == "V1":
+                self._copy_v1()
             self.success = True
         except DockerImagePullerException as ex:
             # Failed at some point, so mark as failure

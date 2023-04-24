@@ -67,7 +67,6 @@ class DockerImagePuller:
         self.logger = logging.getLogger(type(self).__name__)
         self.login_data = login_data
         self.docker_image = docker_image
-        self.local_repo = login_data['local_repo']
         self.image_tag = self.docker_image.split(':')
         self.image_split = self.image_tag[0].split('/')
         self.manifest = None
@@ -157,16 +156,16 @@ class DockerImagePuller:
     def _copy_v1(self):
         self.logger.debug("Copying the V1 type docker image")
         tmp_config_from_name = "{}/{}/{}/{}".format(
+            self.login_data['remote_repo'],
             self.image_split[0],
             self.image_split[1],
-            self.image_split[2],
             "__".join(self.manifest['config']['digest'].split(':'))
         )
         self.logger.debug("tmp_config_from_name: %s", tmp_config_from_name)
         tmp_config_to_name = "{}/{}/{}/{}".format(
-            self.local_repo,
+            self.login_data['local_repo'],
+            self.image_split[0],
             self.image_split[1],
-            self.image_split[2],
             "__".join(self.manifest['config']['digest'].split(':'))
         )
         self.logger.debug("tmp_config_to_name: %s", tmp_config_to_name)
@@ -182,16 +181,16 @@ class DockerImagePuller:
         # Copy the layer files
         for tmp_sublayer in self.manifest['layers']:
             tmp_layer_from_name = "{}/{}/{}/{}".format(
+                self.login_data['remote_repo'],
                 self.image_split[0],
                 self.image_split[1],
-                self.image_split[2],
                 "__".join(tmp_sublayer['digest'].split(':'))
             )
             self.logger.debug("tmp_layer_from_name: %s", tmp_layer_from_name)
             tmp_layer_to_name = "{}/{}/{}/{}".format(
-                self.local_repo,
+                self.login_data['local_repo'],
+                self.image_split[0],
                 self.image_split[1],
-                self.image_split[2],
                 "__".join(tmp_sublayer['digest'].split(':'))
             )
             self.logger.debug("tmp_layer_to_name: %s", tmp_layer_to_name)
@@ -216,9 +215,9 @@ class DockerImagePuller:
                 self.logger.debug("subimage_name: %s", subimage_name)
 
                 subimage_arti_name = "{}/{}/{}/{}/manifest.json".format(
+                    self.login_data['remote_repo'],
                     self.image_split[0],
                     self.image_split[1],
-                    self.image_split[2],
                     subimage_name
                 )
                 tmp_curl2_output = self._arti_curl_get(subimage_arti_name)
@@ -228,16 +227,16 @@ class DockerImagePuller:
                     subimage_manifest = json.loads(tmp_curl2_output.stdout.decode())
                     # Copy the config
                     tmp_config_from_name = "{}/{}/{}/{}/{}".format(
+                        self.login_data['remote_repo'],
                         self.image_split[0],
                         self.image_split[1],
-                        self.image_split[2],
                         subimage_name,
                         "__".join(subimage_manifest['config']['digest'].split(':'))
                     )
                     tmp_config_to_name = "{}/{}/{}/{}/{}".format(
-                        self.local_repo,
+                        self.login_data['local_repo'],
+                        self.image_split[0],
                         self.image_split[1],
-                        self.image_split[2],
                         subimage_name,
                         "__".join(subimage_manifest['config']['digest'].split(':'))
                     )
@@ -254,13 +253,13 @@ class DockerImagePuller:
                     # Copy the layer files
                     for tmp_sublayer in subimage_manifest['layers']:
                         tmp_sublayer_from_name = "{}/{}/{}/{}/{}".format(
-                            self.image_split[0],
+                            self.login_data['remote_repo'],
                             self.image_split[1],
                             self.image_split[2],
                             subimage_name, "__".join(tmp_sublayer['digest'].split(':'))
                         )
                         tmp_sublayer_to_name = "{}/{}/{}/{}/{}".format(
-                            self.local_repo,
+                            self.login_data['local_repo'],
                             self.image_split[1],
                             self.image_split[2],
                             subimage_name, "__".join(tmp_sublayer['digest'].split(':'))

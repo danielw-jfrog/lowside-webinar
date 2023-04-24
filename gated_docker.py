@@ -105,7 +105,7 @@ class DockerImagePuller:
 
     def _pull_image(self):
         self.logger.debug("Pulling the docker image: %s", self.docker_image)
-        tmp_pull_cmd = "docker pull {}".format(self.docker_image)
+        tmp_pull_cmd = "docker pull {}/{}".format(self.login_data['docker_remote_url'], self.docker_image)
         tmp_pull_output = subprocess.run(tmp_pull_cmd.split(' '), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         self.logger.debug("  tmp_pull_output: %s", tmp_pull_output)
         if tmp_pull_output.returncode == 0:
@@ -280,10 +280,10 @@ class DockerImagePuller:
         self.logger.info("Curating the docker image: %s", self.docker_image)
         self._pull_image()
         self._pull_manifest()
-        if self.docker_version == "V2":
-            self._copy_v2()
-        elif self.docker_version == "V1":
-            self._copy_v1()
+        # if self.docker_version == "V2":
+        #     self._copy_v2()
+        # elif self.docker_version == "V1":
+        #     self._copy_v1()
         self.logger.debug("Curating complete for docker image: %s", self.docker_image)
 
 ### MAIN ###

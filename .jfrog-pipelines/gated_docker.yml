@@ -5,7 +5,7 @@ resources:
       webhookName: gated_docker
 
 pipelines:
-  - name: GatedDocker
+  - name: Gated_Docker
     configuration:
       environmentVariables:
         readOnly:

@@ -106,6 +106,20 @@ class DockerImagePuller:
         # FIXME: Raise exceptions for errors, in particular, the '409: Conflict' error
         return curl_output
 
+    def _arti_curl_mkdir(self, input_url):
+        # FIXME: Convert this to urllib or similar
+        self.logger.debug("Make the directory in the repo: %s", input_url)
+        curl_cmd = "curl -f -XPUT -u{}:{} {}/{}/".format(
+            self.login_data['user'],
+            self.login_data['apikey'],
+            self.login_data['arti_url'],
+            input_url
+        )
+        curl_output = subprocess.run(curl_cmd.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.logger.debug("  curl_output: %s", curl_output)
+        # FIXME: Raise exceptions for errors, in particular, the '409: Conflict' error
+        return curl_output
+
     def _pull_image(self):
         self.logger.debug("Pulling the docker image: %s", self.docker_image)
         tmp_pull_cmd = "docker pull {}/{}".format(self.login_data['docker_remote_url'], self.docker_image)
@@ -225,6 +239,23 @@ class DockerImagePuller:
                 if tmp_curl2_output.returncode == 0:
                     # Succeeded in pulling the V2 type image manifest.
                     subimage_manifest = json.loads(tmp_curl2_output.stdout.decode())
+                    # Make sure the directory exists
+                    tmp_mkdir = "{}/{}/{}/{}".format(
+                        self.login_data['local_repo'],
+                        self.image_split[0],
+                        self.image_split[1],
+                        subimage_name
+                    )
+                    tmp_curl3a_output = self._arti_curl_mkdir(tmp_mkdir)
+                    self.logger.debug("tmp_curl3a_output: %s", tmp_curl3a_output)
+                    if tmp_curl3a_output.returncode != 0:
+                        # Failed to copy the config
+                        # FIXME: What error handling should happen here?
+                        # FIXME: The '409: Conflict' error means the file has already been copied, likely from a
+                        #        previous curation.
+                        # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
+                        #        Directories?
+                        self.logger.debug("Failed to create dir")
                     # Copy the config
                     tmp_config_from_name = "{}/{}/{}/{}/{}".format(
                         self.login_data['remote_repo'],
@@ -249,7 +280,7 @@ class DockerImagePuller:
                         #        previous curation.
                         # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
                         #        Directories?
-                        self.logger.debug("Successfully copied config")
+                        self.logger.debug("Failed to copy config")
                     # Copy the layer files
                     for tmp_sublayer in subimage_manifest['layers']:
                         tmp_sublayer_from_name = "{}/{}/{}/{}/{}".format(

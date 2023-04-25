@@ -1,24 +1,12 @@
-#resources:
-#  - name: gated_docker_webhook
-#    type: IncomingWebhook
-#    configuration:
-#      webhookName: gated_docker
-
 pipelines:
   - name: Create_Release_Bundle
-#    configuration:
-#      environmentVariables:
-#        readOnly:
-#          local_repo_name: scanned-docker-local
-#          remote_repo_name: dockerhub-docker-remote
     steps:
     - name: ExampleStep
       type: Bash
       configuration:
         integrations:
-          - name: artifactory
+          - name: distribution
         inputResources:
-#          - name: gated_docker_webhook
           - name: danielw_gitrepo
             trigger: false
       execution:

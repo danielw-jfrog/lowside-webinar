@@ -58,7 +58,7 @@ CREATE_BUNDLE_DICT = {
 }
 
 ### FUNCTIONS ###
-def make_api_request(login_data, method, path, data):
+def make_api_request(login_data, method, path, data = None):
     """
     Send the request to the JFrog Artifactory API.
 
@@ -113,7 +113,8 @@ def main():
     login_data = {}
     login_data['user'] = os.environ['int_distribution_user']
     login_data['apikey'] = os.environ['int_distribution_apikey']
-    login_data['host'] = os.environ['int_distribution_url']
+    login_data['dist_url'] = os.environ['int_distribution_url']
+    login_data['host'] = login_data['dist-url'][0:-12] # Trim the work "distribution" off the end.
     logging.debug("login_data: %s", login_data)
 
     logging.debug("CREATE_BUNDLE_REPOS: %s", CREATE_BUNDLE_REPOS)

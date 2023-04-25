@@ -1,0 +1,62 @@
+items.find({
+	"$and": [
+		{
+			"$or": [
+				{
+					"repo": {
+						"$eq": "scanned-docker-local"
+					}
+				},
+				{
+					"repo": {
+						"$eq": "scanned-pypi-local"
+					}
+				}
+			]
+		},
+		{
+			"$or": [
+				{
+					"updated": {"$gt":"2023-04-25T00:00:00"}
+				}
+			]
+		},
+		{
+			"$and": [
+				{
+					"name": {
+						"$nmatch": "repository.catalog"
+					}
+				}
+			]
+		}
+	]
+}).include("sha256","updated","modified_by","created","id","original_md5","depth","actual_sha1","property.value","modified","property.key","actual_md5","created_by","type","name","repo","original_sha1","size","path")
+
+items.find({
+	"$and": [
+		{
+			"$or": [
+				{
+					"repo": {
+						"$eq": "scanned-docker-local"
+					}
+				},
+				{
+					"repo": {
+						"$eq": "scanned-pypi-local"
+					}
+				}
+			]
+		},
+		{
+			"$and": [
+				{
+					"name": {
+						"$nmatch": "repository.catalog"
+					}
+				}
+			]
+		}
+	]
+}).include("sha256","updated","modified_by","created","id","original_md5","depth","actual_sha1","property.value","modified","property.key","actual_md5","created_by","type","name","repo","original_sha1","size","path")

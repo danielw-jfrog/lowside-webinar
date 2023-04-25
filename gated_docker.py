@@ -127,10 +127,12 @@ class DockerImagePuller:
         self.logger.debug("  tmp_pull_output: %s", tmp_pull_output)
         if tmp_pull_output.returncode == 0:
             self.logger.debug("  Successfully pulled '%s'", self.docker_image)
+            self.logger.info("--- Xray scan complete for image: %s ---", self.docker_image)
             self.success_pull = True
         else:
             # TODO: Should add better error handling for 404: Not Found vs 403: Xray Blocked
             self.logger.debug("Failed to pull image '%s' with error: %s", self.docker_image, tmp_pull_output.stderr)
+            self.logger.warning("--- Xray scan found violations and blocked image: %s ---", self.docker_image)
             raise DockerImagePullerException(tmp_pull_output.stderr)
 
     def _pull_manifest(self):

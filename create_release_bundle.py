@@ -5,12 +5,13 @@ import datetime
 import json
 import logging
 import os
-import subprocess
+import urllib.request
+import urllib.error
 
 ### GLOBALS ###
 CREATE_BUNDLE_REPOS = [
-  "scanned-docker-local",
-  "scanned-pypi-local"
+    "scanned-docker-local",
+    "scanned-pypi-local"
 ]
 
 CREATE_BUNDLE_DATE = datetime.datetime.now() - datetime.timedelta(days=-1)
@@ -31,33 +32,71 @@ CREATE_BUNDLE_AQL_FIND = {
     ]
 }
 
-CREATE_BUNDLE_AQL = """
-items.find({}).include("sha256","updated","modified_by","created","id","original_md5","depth","actual_sha1",
-                       "property.value","modified","property.key","actual_md5","created_by","type","name","repo",
-                       "original_sha1","size","path")
+CREATE_BUNDLE_AQL = """items.find({}).include("sha256","updated","modified_by","created","id","original_md5","depth",
+"actual_sha1","property.value","modified","property.key","actual_md5","created_by","type","name","repo","original_sha1",
+"size","path")
 """.format(json.dumps(CREATE_BUNDLE_AQL_FIND))
 
 CREATE_BUNDLE_DICT = {
-  "name": "example-bundle",
-  "version": "",
-  "dry_run": False,
-  "sign_immediately": True,
-  "description": "Example release bundles showing the ability to move curated packages across an air gap.",
-  "release_notes": {
-    "syntax": "plain_text",
-    "content": "A list of packages could be provided here."
-  }, 
-  "spec": {
-    "queries": [
-      {
-        "aql": CREATE_BUNDLE_AQL,
-        "query_name": "query-1"
-      }
-    ]
-  }
+    "name": "example-bundle",
+    "version": CREATE_BUNDLE_DATE.strftime('%Y%m%d.%H%M'),
+    "dry_run": False,
+    "sign_immediately": True,
+    "description": "Example release bundles showing the ability to move curated packages across an air gap.",
+    "release_notes": {
+        "syntax": "plain_text",
+        "content": "A list of packages could be provided here."
+    },
+    "spec": {
+        "queries": [
+            {
+                "aql": CREATE_BUNDLE_AQL,
+                "query_name": "query-1"
+            }
+        ]
+    }
 }
 
 ### FUNCTIONS ###
+def make_api_request(login_data, method, path, data):
+    """
+    Send the request to the JFrog Artifactory API.
+
+    :param dict login_data: Dictionary containing "user", "apikey", and "host" values.
+    :param str method: One of "GET", "PUT", or "POST".
+    :param str url: URL of the API sans the "host" part.
+    :param str data: String containing the data serialized into JSON format.
+    :return:
+    """
+    req_url = "{}{}".format(login_data["host"], path)
+    req_headers = {"Content-Type": "application/json"}
+    req_data = data.encode("utf-8") if data is not None else None
+
+    logging.debug("req_url: %s", req_url)
+    logging.debug("req_headers: %s", req_headers)
+    logging.debug("req_data: %s", req_data)
+
+    req_pwmanager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+    req_pwmanager.add_password(None, login_data["host"], login_data["user"], login_data["apikey"])
+    req_handler = urllib.request.HTTPBasicAuthHandler(req_pwmanager)
+    req_opener = urllib.request.build_opener(req_handler)
+    urllib.request.install_opener(req_opener)
+
+    request = urllib.request.Request(req_url, data = req_data, headers = req_headers, method = method)
+    resp = None
+    try:
+        with urllib.request.urlopen(request) as response:
+            # Check the status and log
+            # NOTE: response.status for Python >=3.9, change to response.code if Python <=3.8
+            resp = response.read().decode("utf-8")
+            logging.debug("  Response Status: %d, Response Body: %s", response.status, resp)
+            logging.info("Repository operation successful")
+    except urllib.error.HTTPError as ex:
+        logging.warning("Error (%d) for repository operation", ex.code)
+        logging.debug("  response body: %s", ex.read().decode("utf-8"))
+    except urllib.error.URLError as ex:
+        logging.error("Request Failed (URLError): %s", ex.reason)
+    return resp
 
 ### CLASSES ###
 
@@ -82,6 +121,12 @@ def main():
     logging.debug("CREATE_BUNDLE_AQL: %s", CREATE_BUNDLE_AQL)
     logging.debug("CREATE_BUNDLE_DICT: %s", CREATE_BUNDLE_DICT)
     logging.debug("REQUEST_JSON: %s", json.dumps(CREATE_BUNDLE_DICT))
+
+    logging.info("Sending the request to create the bundle.")
+
+    req_url = "/distribution/api/v1/release_bundle"
+    req_data = json.dumps(CREATE_BUNDLE_DICT)
+    make_api_request(tmp_login_data, 'POST', req_url, req_data)
 
 if __name__ == "__main__":
     main()

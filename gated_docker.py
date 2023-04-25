@@ -256,28 +256,47 @@ class DockerImagePuller:
                     #     # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
                     #     #        Directories?
                     #     self.logger.debug("Failed to create dir")
-                    # Copy the config
-                    tmp_config_from_name = "{}/{}/{}/{}/manifest.json".format(
+                    # Copy the manifest
+                    tmp_manifest_from_name = "{}/{}/{}/{}/manifest.json".format(
                         "{}-cache".format(self.login_data['remote_repo']),
                         self.image_split[0],
                         self.image_split[1],
                         subimage_name
                     )
-                    tmp_config_to_name = "{}/{}/{}/{}/manifest.json".format(
+                    tmp_manifest_to_name = "{}/{}/{}/{}/manifest.json".format(
                         self.login_data['local_repo'],
                         self.image_split[0],
                         self.image_split[1],
                         subimage_name
                     )
-                    # tmp_config_to_name = "{}/{}/{}/{}".format(
-                    #     self.login_data['local_repo'],
-                    #     self.image_split[0],
-                    #     self.image_split[1],
-                    #     subimage_name
-                    # )
-                    tmp_curl3_output = self._arti_curl_copy(tmp_config_from_name, tmp_config_to_name)
+                    tmp_curl3_output = self._arti_curl_copy(tmp_manifest_from_name, tmp_manifest_to_name)
                     self.logger.debug("tmp_curl3_output: %s", tmp_curl3_output)
                     if tmp_curl3_output.returncode != 0:
+                        # Failed to copy the config
+                        # FIXME: What error handling should happen here?
+                        # FIXME: The '409: Conflict' error means the file has already been copied, likely from a
+                        #        previous curation.
+                        # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
+                        #        Directories?
+                        self.logger.debug("Failed to copy manifest")
+                    # Copy the config
+                    tmp_config_from_name = "{}/{}/{}/{}/{}".format(
+                        "{}-cache".format(self.login_data['remote_repo']),
+                        self.image_split[0],
+                        self.image_split[1],
+                        subimage_name,
+                        "__".join(subimage_manifest['config']['digest'].split(':'))
+                    )
+                    tmp_config_to_name = "{}/{}/{}/{}/{}".format(
+                        self.login_data['local_repo'],
+                        self.image_split[0],
+                        self.image_split[1],
+                        subimage_name,
+                        "__".join(subimage_manifest['config']['digest'].split(':'))
+                    )
+                    tmp_curl3a_output = self._arti_curl_copy(tmp_config_from_name, tmp_config_to_name)
+                    self.logger.debug("tmp_curl3_output: %s", tmp_curl3a_output)
+                    if tmp_curl3a_output.returncode != 0:
                         # Failed to copy the config
                         # FIXME: What error handling should happen here?
                         # FIXME: The '409: Conflict' error means the file has already been copied, likely from a

@@ -110,10 +110,11 @@ def main():
 
     logging.info("Preparing Environment")
 
-    tmp_login_data = {}
-    tmp_login_data['user'] = os.environ['int_distribution_user']
-    tmp_login_data['apikey'] = os.environ['int_distribution_apikey']
-    tmp_login_data['host'] = os.environ['int_distribution_url']
+    login_data = {}
+    login_data['user'] = os.environ['int_distribution_user']
+    login_data['apikey'] = os.environ['int_distribution_apikey']
+    login_data['host'] = os.environ['int_distribution_url']
+    logging.debug("login_data: %s", login_data)
 
     logging.debug("CREATE_BUNDLE_REPOS: %s", CREATE_BUNDLE_REPOS)
     logging.debug("CREATE_BUNDLE_DATE: %s", CREATE_BUNDLE_DATE)
@@ -126,7 +127,7 @@ def main():
 
     req_url = "/api/v1/release_bundle"
     req_data = json.dumps(CREATE_BUNDLE_DICT)
-    make_api_request(tmp_login_data, 'POST', req_url, req_data)
+    make_api_request(login_data, 'POST', req_url, req_data)
 
 if __name__ == "__main__":
     main()

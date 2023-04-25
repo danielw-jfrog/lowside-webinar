@@ -239,23 +239,6 @@ class DockerImagePuller:
                 if tmp_curl2_output.returncode == 0:
                     # Succeeded in pulling the V2 type image manifest.
                     subimage_manifest = json.loads(tmp_curl2_output.stdout.decode())
-                    # Make sure the directory exists
-                    # tmp_mkdir = "{}/{}/{}/{}".format(
-                    #     self.login_data['local_repo'],
-                    #     self.image_split[0],
-                    #     self.image_split[1],
-                    #     subimage_name
-                    # )
-                    # tmp_curl3a_output = self._arti_curl_mkdir(tmp_mkdir)
-                    # self.logger.debug("tmp_curl3a_output: %s", tmp_curl3a_output)
-                    # if tmp_curl3a_output.returncode != 0:
-                    #     # Failed to copy the config
-                    #     # FIXME: What error handling should happen here?
-                    #     # FIXME: The '409: Conflict' error means the file has already been copied, likely from a
-                    #     #        previous curation.
-                    #     # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
-                    #     #        Directories?
-                    #     self.logger.debug("Failed to create dir")
                     # Copy the manifest
                     tmp_manifest_from_name = "{}/{}/{}/{}/manifest.json".format(
                         "{}-cache".format(self.login_data['remote_repo']),
@@ -278,7 +261,8 @@ class DockerImagePuller:
                         #        previous curation.
                         # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
                         #        Directories?
-                        self.logger.debug("Failed to copy manifest")
+                        self.logger.debug("Failed to copy manifest.json")
+                        raise DockerImagePullerException("Failed to copy manifest.json")
                     # Copy the config
                     tmp_config_from_name = "{}/{}/{}/{}/{}".format(
                         "{}-cache".format(self.login_data['remote_repo']),
@@ -304,6 +288,7 @@ class DockerImagePuller:
                         # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
                         #        Directories?
                         self.logger.debug("Failed to copy config")
+                        raise DockerImagePullerException("Failed to copy config")
                     # Copy the layer files
                     for tmp_sublayer in subimage_manifest['layers']:
                         tmp_sublayer_from_name = "{}/{}/{}/{}/{}".format(
@@ -329,11 +314,36 @@ class DockerImagePuller:
                             #        previous curation.
                             # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
                             #        Directories?
-                            self.logger.debug("Successfully copied layer")
+                            self.logger.debug("Failed to copy layer")
+                            raise DockerImagePullerException("Failed to copy layer")
                 else:
                     # Failed to get manifest.json
-                    # FIXME: What error handling should happen here?
-                    pass
+                    self.logger.debug("Failed to get manifest.json")
+                    raise DockerImagePullerException("Failed to get manifest.json")
+        # Copy the list.manifest.json
+        tmp_image_from_name = "{}/{}/{}/{}/list.manifest.json".format(
+            "{}-cache".format(self.login_data['remote_repo']),
+            self.image_split[0],
+            self.image_split[1],
+            self.image_tag[1]
+        )
+        tmp_image_to_name = "{}/{}/{}/{}/list.manifest.json".format(
+            self.login_data['local_repo'],
+            self.image_split[0],
+            self.image_split[1],
+            self.image_tag[1]
+        )
+        tmp_curl5_output = self._arti_curl_copy(tmp_image_from_name, tmp_image_to_name)
+        self.logger.debug("tmp_curl5_output: %s", tmp_curl5_output)
+        if tmp_curl5_output.returncode != 0:
+            # Failed to copy the config
+            # FIXME: What error handling should happen here?
+            # FIXME: The '409: Conflict' error means the file has already been copied, likely from a
+            #        previous curation.
+            # FIXME: Still getting '409: Conflict' errors when the image hasn't already been copied.
+            #        Directories?
+            self.logger.debug("Failed to copy list.manifest.json")
+        self.success_copy = True
         self.logger.debug("Completed Copying V2 Images")
 
     def curate(self):

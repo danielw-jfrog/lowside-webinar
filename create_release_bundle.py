@@ -84,6 +84,7 @@ def make_api_request(login_data, method, path, data = None):
     urllib.request.install_opener(req_opener)
 
     request = urllib.request.Request(req_url, data = req_data, headers = req_headers, method = method)
+    logging.debug("request headers: %s", request.header_items())
     resp = None
     try:
         with urllib.request.urlopen(request) as response:

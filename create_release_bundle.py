@@ -94,7 +94,7 @@ def make_api_request(login_data, method, path, data = None):
             logging.info("Repository operation successful")
     except urllib.error.HTTPError as ex:
         logging.warning("Error (%d) for repository operation", ex.code)
-        logging.debug("  response headers: %s", )
+        logging.debug("  response headers: %s", ex.headers)
         logging.debug("  response body: %s", ex.read().decode("utf-8"))
     except urllib.error.URLError as ex:
         logging.error("Request Failed (URLError): %s", ex.reason)

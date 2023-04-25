@@ -113,7 +113,7 @@ def main():
     tmp_login_data = {}
     tmp_login_data['user'] = os.environ['int_artifactory_user']
     tmp_login_data['apikey'] = os.environ['int_artifactory_apikey']
-    tmp_login_data['arti_url'] = os.environ['int_artifactory_url']
+    tmp_login_data['host'] = os.environ['int_artifactory_url']
 
     logging.debug("CREATE_BUNDLE_REPOS: %s", CREATE_BUNDLE_REPOS)
     logging.debug("CREATE_BUNDLE_DATE: %s", CREATE_BUNDLE_DATE)

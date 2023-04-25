@@ -257,26 +257,24 @@ class DockerImagePuller:
                     #     #        Directories?
                     #     self.logger.debug("Failed to create dir")
                     # Copy the config
-                    tmp_config_from_name = "{}/{}/{}/{}/{}".format(
+                    tmp_config_from_name = "{}/{}/{}/{}/manifest.json".format(
                         "{}-cache".format(self.login_data['remote_repo']),
                         self.image_split[0],
                         self.image_split[1],
-                        subimage_name,
-                        "__".join(subimage_manifest['config']['digest'].split(':'))
+                        subimage_name
                     )
-                    # tmp_config_to_name = "{}/{}/{}/{}/{}".format(
-                    #     self.login_data['local_repo'],
-                    #     self.image_split[0],
-                    #     self.image_split[1],
-                    #     subimage_name,
-                    #     "__".join(subimage_manifest['config']['digest'].split(':'))
-                    # )
-                    tmp_config_to_name = "{}/{}/{}/{}".format(
+                    tmp_config_to_name = "{}/{}/{}/{}/manifest.json".format(
                         self.login_data['local_repo'],
                         self.image_split[0],
                         self.image_split[1],
                         subimage_name
                     )
+                    # tmp_config_to_name = "{}/{}/{}/{}".format(
+                    #     self.login_data['local_repo'],
+                    #     self.image_split[0],
+                    #     self.image_split[1],
+                    #     subimage_name
+                    # )
                     tmp_curl3_output = self._arti_curl_copy(tmp_config_from_name, tmp_config_to_name)
                     self.logger.debug("tmp_curl3_output: %s", tmp_curl3_output)
                     if tmp_curl3_output.returncode != 0:

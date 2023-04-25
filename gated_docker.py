@@ -258,7 +258,7 @@ class DockerImagePuller:
                         self.logger.debug("Failed to create dir")
                     # Copy the config
                     tmp_config_from_name = "{}/{}/{}/{}/{}".format(
-                        self.login_data['remote_repo'],
+                        "{}-cache".format(self.login_data['remote_repo']),
                         self.image_split[0],
                         self.image_split[1],
                         subimage_name,
@@ -290,16 +290,18 @@ class DockerImagePuller:
                     # Copy the layer files
                     for tmp_sublayer in subimage_manifest['layers']:
                         tmp_sublayer_from_name = "{}/{}/{}/{}/{}".format(
-                            self.login_data['remote_repo'],
+                            "{}-cache".format(self.login_data['remote_repo']),
                             self.image_split[0],
                             self.image_split[1],
-                            subimage_name, "__".join(tmp_sublayer['digest'].split(':'))
+                            subimage_name,
+                            "__".join(tmp_sublayer['digest'].split(':'))
                         )
                         tmp_sublayer_to_name = "{}/{}/{}/{}/{}".format(
                             self.login_data['local_repo'],
                             self.image_split[0],
                             self.image_split[1],
-                            subimage_name, "__".join(tmp_sublayer['digest'].split(':'))
+                            subimage_name,
+                            "__".join(tmp_sublayer['digest'].split(':'))
                         )
                         tmp_curl4_output = self._arti_curl_copy(tmp_sublayer_from_name, tmp_sublayer_to_name)
                         self.logger.debug("tmp_curl4_output: %s", tmp_curl4_output)

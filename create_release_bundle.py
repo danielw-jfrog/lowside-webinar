@@ -76,7 +76,8 @@ def make_api_request(login_data, method, path, data = None):
     logging.debug("req_headers: %s", req_headers)
     logging.debug("req_data: %s", req_data)
 
-    req_pwmanager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+    #req_pwmanager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+    req_pwmanager = urllib.request.HTTPPasswordMgrWithPriorAuth()
     req_pwmanager.add_password(None, login_data["host"], login_data["user"], login_data["apikey"])
     req_handler = urllib.request.HTTPBasicAuthHandler(req_pwmanager)
     req_opener = urllib.request.build_opener(req_handler)
@@ -93,6 +94,7 @@ def make_api_request(login_data, method, path, data = None):
             logging.info("Repository operation successful")
     except urllib.error.HTTPError as ex:
         logging.warning("Error (%d) for repository operation", ex.code)
+        logging.debug("  response headers: %s", )
         logging.debug("  response body: %s", ex.read().decode("utf-8"))
     except urllib.error.URLError as ex:
         logging.error("Request Failed (URLError): %s", ex.reason)

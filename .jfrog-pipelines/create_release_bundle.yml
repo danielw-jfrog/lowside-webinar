@@ -2,7 +2,7 @@ resources:
   - name: crb_crontrigger
     type: CronTrigger
     configuration:
-      interval: "17 * * * *"
+      interval: "21 * * * *"
 
 pipelines:
   - name: Create_Release_Bundle

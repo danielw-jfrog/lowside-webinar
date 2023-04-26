@@ -5,10 +5,13 @@ import datetime
 import json
 import logging
 import os
+import sys
 import urllib.request
 import urllib.error
 
 ### GLOBALS ###
+ERROR = False
+
 CREATE_BUNDLE_REPOS = [
     "scanned-docker-local",
     "scanned-pypi-local"
@@ -68,6 +71,7 @@ def make_api_request(login_data, method, path, data = None):
     :param str data: String containing the data serialized into JSON format.
     :return:
     """
+    global ERROR
     req_url = "{}{}".format(login_data["host"], path)
     req_headers = {"Content-Type": "application/json"}
     req_data = data.encode("utf-8") if data is not None else None
@@ -97,8 +101,10 @@ def make_api_request(login_data, method, path, data = None):
         logging.warning("Error (%d) for repository operation", ex.code)
         logging.debug("  response headers: %s", ex.headers)
         logging.debug("  response body: %s", ex.read().decode("utf-8"))
+        ERROR = True
     except urllib.error.URLError as ex:
         logging.error("Request Failed (URLError): %s", ex.reason)
+        ERROR = True
     return resp
 
 ### CLASSES ###
@@ -132,6 +138,10 @@ def main():
     req_url = "/distribution/api/v1/release_bundle"
     req_data = json.dumps(CREATE_BUNDLE_DICT)
     make_api_request(login_data, 'POST', req_url, req_data)
+
+    # Output an error code so the pipeline fails
+    if ERROR:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

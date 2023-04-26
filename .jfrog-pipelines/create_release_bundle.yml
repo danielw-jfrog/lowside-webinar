@@ -1,3 +1,9 @@
+resources:
+  - name: crb_crontrigger
+    type: CronTrigger
+    configuration:
+      interval: "17 * * * *"
+
 pipelines:
   - name: Create_Release_Bundle
     steps:
@@ -7,6 +13,7 @@ pipelines:
         integrations:
           - name: distribution
         inputResources:
+          - name: crb_crontrigger
           - name: danielw_gitrepo
             trigger: false
       execution:

@@ -14,7 +14,7 @@ CREATE_BUNDLE_REPOS = [
     "scanned-pypi-local"
 ]
 
-CREATE_BUNDLE_DATE = datetime.datetime.now() - datetime.timedelta(days=-1)
+CREATE_BUNDLE_DATE = datetime.datetime.now() - datetime.timedelta(days = 1)
 
 CREATE_BUNDLE_AQL_FIND = {
     "$and": [

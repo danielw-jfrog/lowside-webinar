@@ -78,7 +78,7 @@ def make_api_request(login_data, method, path, data = None):
 
     #req_pwmanager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     req_pwmanager = urllib.request.HTTPPasswordMgrWithPriorAuth()
-    req_pwmanager.add_password(None, login_data["host"], login_data["user"], login_data["apikey"])
+    req_pwmanager.add_password(None, login_data["host"], login_data["user"], login_data["apikey"], is_authenticated = True)
     req_handler = urllib.request.HTTPBasicAuthHandler(req_pwmanager)
     req_opener = urllib.request.build_opener(req_handler)
     urllib.request.install_opener(req_opener)

@@ -22,7 +22,7 @@ CREATE_BUNDLE_AQL_FIND = {
             "$or": [ {"repo":{"$eq": i_repo}} for i_repo in CREATE_BUNDLE_REPOS],
         }, {
             "$or": [
-                { "updated": { "$gt": CREATE_BUNDLE_DATE.strftime('%Y-%m-%d %H:%M:00')} }
+                { "updated": { "$gt": CREATE_BUNDLE_DATE.strftime('%Y-%m-%dT%H:%M:00')} }
             ]
         }, {
             "$and": [

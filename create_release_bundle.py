@@ -42,7 +42,7 @@ CREATE_BUNDLE_AQL = """items.find({}).include("sha256","updated","modified_by","
 
 CREATE_BUNDLE_DICT = {
     "name": "example-bundle",
-    "version": CREATE_BUNDLE_DATE.strftime('%Y%m%d.%H%M'),
+    "version": datetime.datetime.now().strftime('%Y%m%d.%H%M'),
     "dry_run": False,
     "sign_immediately": True,
     "description": "Example release bundles showing the ability to move curated packages across an air gap.",

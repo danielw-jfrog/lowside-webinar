@@ -100,8 +100,10 @@ def main():
     tmp_packages = get_requirements_from_payload(tmp_payload_json)
 
     tmp_login_data = {}
-    tmp_login_data['user'] = os.environ['int_artifactory_user']
-    tmp_login_data['apikey'] = os.environ['int_artifactory_apikey']
+    #tmp_login_data['user'] = os.environ['int_artifactory_user']
+    #tmp_login_data['apikey'] = os.environ['int_artifactory_apikey']
+    tmp_login_data['user'] = "danielw"
+    tmp_login_data['apikey'] = os.environ['int_artifactory_accessToken']
     tmp_login_data['arti_url'] = os.environ['int_artifactory_url']
     tmp_login_data['local_repo'] = os.environ['local_repo_name']
     tmp_login_data['remote_repo'] = os.environ['remote_repo_name']
